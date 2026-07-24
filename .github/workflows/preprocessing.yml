@@ -1,0 +1,38 @@
+name: Automate Data Preprocessing
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "namadataset_raw/**"
+      - "preprocessing/automate_Iqbal-Rahmatullah.py"
+      - ".github/workflows/preprocessing.yml"
+  workflow_dispatch:
+
+jobs:
+  preprocess:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run automated preprocessing
+        run: python preprocessing/automate_Iqbal-Rahmatullah.py
+
+      - name: Commit & push updated preprocessed dataset
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add preprocessing/telco_customer_churn_preprocessing
+          git diff --cached --quiet || git commit -m "chore: update preprocessed dataset [skip ci]"
+          git push
